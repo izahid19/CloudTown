@@ -17,7 +17,7 @@ export default class Player {
     // Create animations
     this.createAnimations();
     
-    // Setup controls
+    // Setup keyboard controls
     this.cursors = scene.input.keyboard.createCursorKeys();
     this.wasd = scene.input.keyboard.addKeys({
       up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -26,9 +26,154 @@ export default class Player {
       right: Phaser.Input.Keyboard.KeyCodes.D,
     });
     
+    // Touch/mobile joystick input
+    this.touchInput = { x: 0, y: 0, active: false };
+    
+    // Create virtual joystick for mobile
+    if (this.isMobile()) {
+      this.createVirtualJoystick();
+    }
+    
     // Current direction
     this.direction = 'down';
     this.isMoving = false;
+  }
+  
+  isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+      || window.innerWidth < 768;
+  }
+  
+  createVirtualJoystick() {
+    // Create joystick container
+    const joystickContainer = document.createElement('div');
+    joystickContainer.id = 'virtual-joystick';
+    joystickContainer.style.cssText = `
+      position: fixed;
+      bottom: 30px;
+      left: 30px;
+      width: 120px;
+      height: 120px;
+      border-radius: 60px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 3px solid rgba(44, 90, 160, 0.7);
+      z-index: 10000;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    `;
+    
+    // Create joystick knob
+    const knob = document.createElement('div');
+    knob.id = 'joystick-knob';
+    knob.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      border-radius: 25px;
+      background: rgba(44, 90, 160, 0.8);
+      border: 2px solid #fff;
+      pointer-events: none;
+    `;
+    joystickContainer.appendChild(knob);
+    
+    // Append to body for fixed positioning
+    document.body.appendChild(joystickContainer);
+    
+    // Track joystick state
+    const joystickRect = { centerX: 0, centerY: 0 };
+    const maxDistance = 35;
+    
+    const updateJoystickPosition = () => {
+      const rect = joystickContainer.getBoundingClientRect();
+      joystickRect.centerX = rect.left + rect.width / 2;
+      joystickRect.centerY = rect.top + rect.height / 2;
+    };
+    
+    const handleTouch = (e) => {
+      e.preventDefault();
+      const touch = e.touches[0] || e.changedTouches[0];
+      updateJoystickPosition();
+      
+      let dx = touch.clientX - joystickRect.centerX;
+      let dy = touch.clientY - joystickRect.centerY;
+      
+      // Limit distance
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance > maxDistance) {
+        dx = (dx / distance) * maxDistance;
+        dy = (dy / distance) * maxDistance;
+      }
+      
+      // Update knob position
+      knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+      
+      // Normalize to -1 to 1 range
+      this.touchInput.x = dx / maxDistance;
+      this.touchInput.y = dy / maxDistance;
+      this.touchInput.active = true;
+    };
+    
+    const handleTouchEnd = () => {
+      knob.style.transform = 'translate(-50%, -50%)';
+      this.touchInput.x = 0;
+      this.touchInput.y = 0;
+      this.touchInput.active = false;
+    };
+    
+    // Mouse handlers (for desktop testing and click support)
+    let isMouseDown = false;
+    
+    const handleMouse = (e) => {
+      if (!isMouseDown) return;
+      e.preventDefault();
+      updateJoystickPosition();
+      
+      let dx = e.clientX - joystickRect.centerX;
+      let dy = e.clientY - joystickRect.centerY;
+      
+      // Limit distance
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance > maxDistance) {
+        dx = (dx / distance) * maxDistance;
+        dy = (dy / distance) * maxDistance;
+      }
+      
+      // Update knob position
+      knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+      
+      // Normalize to -1 to 1 range
+      this.touchInput.x = dx / maxDistance;
+      this.touchInput.y = dy / maxDistance;
+      this.touchInput.active = true;
+    };
+    
+    const handleMouseDown = (e) => {
+      isMouseDown = true;
+      handleMouse(e);
+    };
+    
+    const handleMouseUp = () => {
+      isMouseDown = false;
+      knob.style.transform = 'translate(-50%, -50%)';
+      this.touchInput.x = 0;
+      this.touchInput.y = 0;
+      this.touchInput.active = false;
+    };
+    
+    // Touch events with passive: false to allow preventDefault
+    joystickContainer.addEventListener('touchstart', handleTouch, { passive: false });
+    joystickContainer.addEventListener('touchmove', handleTouch, { passive: false });
+    joystickContainer.addEventListener('touchend', handleTouchEnd, { passive: false });
+    joystickContainer.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+    
+    // Mouse events
+    joystickContainer.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouse);
+    document.addEventListener('mouseup', handleMouseUp);
   }
 
   createAnimations() {
@@ -94,7 +239,7 @@ export default class Player {
   }
 
   update() {
-    // Get input
+    // Get keyboard input
     const leftDown = this.cursors.left.isDown || this.wasd.left.isDown;
     const rightDown = this.cursors.right.isDown || this.wasd.right.isDown;
     const upDown = this.cursors.up.isDown || this.wasd.up.isDown;
@@ -104,13 +249,20 @@ export default class Player {
     let vx = 0;
     let vy = 0;
     
+    // Keyboard input
     if (leftDown) vx -= 1;
     if (rightDown) vx += 1;
     if (upDown) vy -= 1;
     if (downDown) vy += 1;
     
-    // Normalize diagonal movement
-    if (vx !== 0 && vy !== 0) {
+    // Touch joystick input (takes priority if active)
+    if (this.touchInput && this.touchInput.active) {
+      vx = this.touchInput.x;
+      vy = this.touchInput.y;
+    }
+    
+    // Normalize diagonal movement (only for keyboard)
+    if (!this.touchInput?.active && vx !== 0 && vy !== 0) {
       vx *= 0.707;
       vy *= 0.707;
     }
