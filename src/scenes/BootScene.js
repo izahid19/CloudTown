@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import gsap from 'gsap';
 
 export default class BootScene extends Phaser.Scene {
   constructor() {
@@ -6,46 +7,223 @@ export default class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    // Create loading bar
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
     
-    // Background - sky blue theme for Cloud Town
+    // Gradient background using graphics
     this.cameras.main.setBackgroundColor('#87CEEB');
     
-    // Loading text
-    const loadingText = this.add.text(width / 2, height / 2 - 50, '☁️ Cloud Town ☁️', {
+    // Create floating clouds in background
+    this.createFloatingClouds(width, height);
+    
+    // Main title with GSAP animation
+    const title = this.add.text(width / 2, height / 2 - 80, '☁️ Cloud Town ☁️', {
       fontFamily: 'Arial',
-      fontSize: '48px',
-      color: '#2c5aa0',
+      fontSize: '52px',
+      color: '#ffffff',
       fontStyle: 'bold',
-    }).setOrigin(0.5);
+      stroke: '#2c5aa0',
+      strokeThickness: 4,
+      shadow: { offsetX: 3, offsetY: 3, color: '#1a4080', blur: 8, fill: true }
+    }).setOrigin(0.5).setAlpha(0);
     
-    const progressText = this.add.text(width / 2, height / 2 + 20, 'Gathering clouds...', {
+    // Animate title entrance
+    gsap.to(title, {
+      alpha: 1,
+      y: height / 2 - 60,
+      duration: 1,
+      ease: 'back.out(1.7)'
+    });
+    
+    // Pulsing glow effect on title
+    gsap.to(title, {
+      scaleX: 1.05,
+      scaleY: 1.05,
+      duration: 1.5,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
+    
+    // Subtitle with typewriter effect simulation
+    const subtitle = this.add.text(width / 2, height / 2, '', {
       fontFamily: 'Arial',
-      fontSize: '18px',
-      color: '#4a7ab8',
+      fontSize: '20px',
+      color: '#2c5aa0',
     }).setOrigin(0.5);
     
-    // Progress bar
-    const progressBar = this.add.graphics();
-    const progressBox = this.add.graphics();
-    progressBox.fillStyle(0x5a5a3a, 0.3);
-    progressBox.fillRect(width / 2 - 160, height / 2 + 50, 320, 20);
+    const subtitleText = '✨ Gathering clouds... ✨';
+    let charIndex = 0;
     
-    this.load.on('progress', (value) => {
-      progressBar.clear();
-      progressBar.fillStyle(0x5a5a3a, 1);
-      progressBar.fillRect(width / 2 - 156, height / 2 + 54, 312 * value, 12);
+    const typewriter = this.time.addEvent({
+      delay: 80,
+      callback: () => {
+        subtitle.setText(subtitleText.substring(0, charIndex + 1));
+        charIndex++;
+        if (charIndex >= subtitleText.length) {
+          typewriter.destroy();
+        }
+      },
+      repeat: subtitleText.length - 1
+    });
+    
+    // Create progress bar using HTML DOM (more reliable than Phaser graphics)
+    const progressContainer = document.createElement('div');
+    progressContainer.id = 'loading-progress';
+    progressContainer.style.cssText = `
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 340px;
+      z-index: 1000;
+      font-family: Arial, sans-serif;
+    `;
+    
+    // Progress bar background
+    const progressBg = document.createElement('div');
+    progressBg.style.cssText = `
+      width: 100%;
+      height: 35px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 3px solid #2c5aa0;
+      border-radius: 20px;
+      overflow: hidden;
+    `;
+    
+    // Progress bar fill
+    const progressFill = document.createElement('div');
+    progressFill.style.cssText = `
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(to bottom, #5cb8e8, #2c5aa0);
+      border-radius: 17px;
+      transition: width 0.1s ease-out;
+    `;
+    progressBg.appendChild(progressFill);
+    
+    // Percentage text
+    const percentText = document.createElement('div');
+    percentText.style.cssText = `
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #2c5aa0;
+      margin-top: 15px;
+    `;
+    percentText.textContent = '0%';
+    
+    progressContainer.appendChild(progressBg);
+    progressContainer.appendChild(percentText);
+    document.getElementById('game-container').appendChild(progressContainer);
+    
+    // Loading tips
+    const tips = [
+      '💡 Use WASD or Arrow keys to move',
+      '🔍 Press Q/E to zoom in and out',
+      '🗺️ Check the minimap in the corner'
+    ];
+    
+    const tipText = this.add.text(width / 2, height - 60, tips[0], {
+      fontFamily: 'Arial',
+      fontSize: '14px',
+      color: '#4a7ab8',
+    }).setOrigin(0.5).setAlpha(0);
+    
+    gsap.to(tipText, { alpha: 1, duration: 0.5, delay: 1 });
+    
+    // Cycle through tips
+    let tipIndex = 0;
+    this.time.addEvent({
+      delay: 2000,
+      callback: () => {
+        tipIndex = (tipIndex + 1) % tips.length;
+        gsap.to(tipText, {
+          alpha: 0,
+          duration: 0.3,
+          onComplete: () => {
+            tipText.setText(tips[tipIndex]);
+            gsap.to(tipText, { alpha: 1, duration: 0.3 });
+          }
+        });
+      },
+      repeat: -1
+    });
+    
+    // Animate progress bar 0% to 100% over 5.5 seconds
+    const progress = { value: 0 };
+    
+    gsap.to(progress, {
+      value: 100,
+      duration: 5.5,
+      ease: 'power1.inOut',
+      delay: 0.3,
+      onUpdate: () => {
+        progressFill.style.width = `${progress.value}%`;
+        percentText.textContent = `${Math.floor(progress.value)}%`;
+      },
+      onComplete: () => {
+        // Fade out loading screen
+        gsap.to(progressContainer, {
+          opacity: 0,
+          duration: 0.3,
+          onComplete: () => progressContainer.remove()
+        });
+      }
     });
     
     this.load.on('complete', () => {
-      progressBar.destroy();
-      progressBox.destroy();
+      // Fade out Phaser elements
+      gsap.to([title, subtitle, tipText], {
+        alpha: 0,
+        duration: 0.3,
+        stagger: 0.05
+      });
     });
     
     // Generate placeholder assets programmatically
     this.createPlaceholderAssets();
+  }
+  
+  createFloatingClouds(width, height) {
+    // Create cloud texture
+    const cloudGraphics = this.add.graphics();
+    cloudGraphics.fillStyle(0xffffff, 0.6);
+    cloudGraphics.fillCircle(20, 20, 20);
+    cloudGraphics.fillCircle(40, 15, 25);
+    cloudGraphics.fillCircle(65, 20, 20);
+    cloudGraphics.fillCircle(45, 30, 18);
+    cloudGraphics.generateTexture('cloud', 90, 50);
+    cloudGraphics.destroy();
+    
+    // Create multiple floating clouds
+    for (let i = 0; i < 8; i++) {
+      const cloud = this.add.image(
+        Math.random() * (width + 200) - 100,
+        Math.random() * height,
+        'cloud'
+      );
+      cloud.setAlpha(0.4 + Math.random() * 0.3);
+      cloud.setScale(0.5 + Math.random() * 1);
+      cloud.setDepth(-1);
+      
+      // Animate cloud floating across screen - starts immediately
+      gsap.to(cloud, {
+        x: `+=${width + 200}`,
+        duration: 15 + Math.random() * 10,
+        repeat: -1,
+        ease: 'none'
+      });
+      
+      // Gentle bobbing motion
+      gsap.to(cloud, {
+        y: `+=${10 + Math.random() * 20}`,
+        duration: 2 + Math.random() * 2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut'
+      });
+    }
   }
 
   createPlaceholderAssets() {
@@ -337,8 +515,8 @@ export default class BootScene extends Phaser.Scene {
   }
 
   create() {
-    // Small delay for effect, then start game
-    this.time.delayedCall(500, () => {
+    // Show loading screen for 6 seconds before starting game
+    this.time.delayedCall(6000, () => {
       this.scene.start('GameScene');
     });
   }
