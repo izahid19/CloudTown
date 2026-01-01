@@ -16,21 +16,29 @@ export default class BootScene extends Phaser.Scene {
     // Create floating clouds in background
     this.createFloatingClouds(width, height);
     
+    // Responsive layout scaling
+    const isMobile = width < 768;
+    const titleSize = isMobile ? '36px' : '52px';
+    const subtitleSize = isMobile ? '16px' : '20px';
+    const barWidth = isMobile ? '280px' : '340px';
+    const percentSize = isMobile ? '20px' : '24px';
+    const titleOffset = isMobile ? 60 : 80;
+    
     // Main title with GSAP animation
-    const title = this.add.text(width / 2, height / 2 - 80, '☁️ Cloud Town ☁️', {
+    const title = this.add.text(width / 2, height / 2 - titleOffset, '☁️ Cloud Town ☁️', {
       fontFamily: 'Arial',
-      fontSize: '52px',
+      fontSize: titleSize,
       color: '#ffffff',
       fontStyle: 'bold',
       stroke: '#2c5aa0',
-      strokeThickness: 4,
+      strokeThickness: isMobile ? 3 : 4,
       shadow: { offsetX: 3, offsetY: 3, color: '#1a4080', blur: 8, fill: true }
     }).setOrigin(0.5).setAlpha(0);
     
     // Animate title entrance
     gsap.to(title, {
       alpha: 1,
-      y: height / 2 - 60,
+      y: height / 2 - (titleOffset - 20),
       duration: 1,
       ease: 'back.out(1.7)'
     });
@@ -48,7 +56,7 @@ export default class BootScene extends Phaser.Scene {
     // Subtitle with typewriter effect simulation
     const subtitle = this.add.text(width / 2, height / 2, '', {
       fontFamily: 'Arial',
-      fontSize: '20px',
+      fontSize: subtitleSize,
       color: '#2c5aa0',
     }).setOrigin(0.5);
     
@@ -75,7 +83,7 @@ export default class BootScene extends Phaser.Scene {
       top: 55%;
       left: 50%;
       transform: translateX(-50%);
-      width: 340px;
+      width: ${barWidth};
       z-index: 1000;
       font-family: Arial, sans-serif;
     `;
@@ -106,7 +114,7 @@ export default class BootScene extends Phaser.Scene {
     const percentText = document.createElement('div');
     percentText.style.cssText = `
       text-align: center;
-      font-size: 24px;
+      font-size: ${percentSize};
       font-weight: bold;
       color: #2c5aa0;
       margin-top: 15px;
