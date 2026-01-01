@@ -54,9 +54,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   createMinimap() {
-    // Minimap dimensions
-    const minimapWidth = 180;
-    const minimapHeight = 135;
+    // Minimap dimensions - smaller on mobile
+    const isMobile = window.innerWidth < 768;
+    const minimapWidth = isMobile ? 100 : 180;
+    const minimapHeight = isMobile ? 75 : 135;
     const padding = 16;
     
     // Get actual viewport width
