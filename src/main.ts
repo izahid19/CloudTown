@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import BootScene from './scenes/BootScene.js';
-import GameScene from './scenes/GameScene.js';
+import BootScene from './scenes/BootScene';
+import GameScene from './scenes/GameScene';
 
 const config = {
   type: Phaser.AUTO,
@@ -11,7 +11,7 @@ const config = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 0 },
+      gravity: { x: 0, y: 0 },
       debug: false,
     },
   },
@@ -22,4 +22,4 @@ const config = {
   },
 };
 
-const game = new Phaser.Game(config);
+new Phaser.Game(config);

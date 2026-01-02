@@ -1,7 +1,21 @@
 import Phaser from 'phaser';
 
 export default class Player {
-  constructor(scene, x, y) {
+  scene: Phaser.Scene;
+  sprite: Phaser.Physics.Arcade.Sprite;
+  speed: number;
+  cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  wasd: {
+    up: Phaser.Input.Keyboard.Key;
+    down: Phaser.Input.Keyboard.Key;
+    left: Phaser.Input.Keyboard.Key;
+    right: Phaser.Input.Keyboard.Key;
+  };
+  touchInput: { x: number; y: number; active: boolean };
+  direction: string;
+  isMoving: boolean;
+
+  constructor(scene: Phaser.Scene, x: number, y: number) {
     this.scene = scene;
     
     // Create sprite with the first frame
@@ -18,13 +32,18 @@ export default class Player {
     this.createAnimations();
     
     // Setup keyboard controls
-    this.cursors = scene.input.keyboard.createCursorKeys();
-    this.wasd = scene.input.keyboard.addKeys({
+    this.cursors = scene.input.keyboard!.createCursorKeys();
+    this.wasd = scene.input.keyboard!.addKeys({
       up: Phaser.Input.Keyboard.KeyCodes.W,
       down: Phaser.Input.Keyboard.KeyCodes.S,
       left: Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D,
-    });
+    }) as {
+      up: Phaser.Input.Keyboard.Key;
+      down: Phaser.Input.Keyboard.Key;
+      left: Phaser.Input.Keyboard.Key;
+      right: Phaser.Input.Keyboard.Key;
+    };
     
     // Touch/mobile joystick input
     this.touchInput = { x: 0, y: 0, active: false };
@@ -93,7 +112,7 @@ export default class Player {
       joystickRect.centerY = rect.top + rect.height / 2;
     };
     
-    const handleTouch = (e) => {
+    const handleTouch = (e: TouchEvent) => {
       e.preventDefault();
       const touch = e.touches[0] || e.changedTouches[0];
       updateJoystickPosition();
@@ -127,7 +146,7 @@ export default class Player {
     // Mouse handlers (for desktop testing and click support)
     let isMouseDown = false;
     
-    const handleMouse = (e) => {
+    const handleMouse = (e: MouseEvent) => {
       if (!isMouseDown) return;
       e.preventDefault();
       updateJoystickPosition();
@@ -151,7 +170,7 @@ export default class Player {
       this.touchInput.active = true;
     };
     
-    const handleMouseDown = (e) => {
+    const handleMouseDown = (e: MouseEvent) => {
       isMouseDown = true;
       handleMouse(e);
     };

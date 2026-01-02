@@ -2,6 +2,20 @@ import Phaser from 'phaser';
 import Player from '../entities/Player.js';
 
 export default class GameScene extends Phaser.Scene {
+  worldWidth: number;
+  worldHeight: number;
+  currentZoom: number;
+  minZoom: number;
+  maxZoom: number;
+  player!: Player;
+  obstacles!: Phaser.Physics.Arcade.StaticGroup;
+  decorations!: Phaser.GameObjects.Group;
+  minimapCamera!: Phaser.Cameras.Scene2D.Camera;
+  zoomDisplay?: HTMLDivElement;
+  minimapWidth!: number;
+  minimapHeight!: number;
+  minimapPadding!: number;
+
   constructor() {
     super({ key: 'GameScene' });
     this.worldWidth = 1600;
@@ -92,7 +106,7 @@ export default class GameScene extends Phaser.Scene {
       pointer-events: none;
       z-index: 999;
     `;
-    document.getElementById('game-container').appendChild(minimapContainer);
+    document.getElementById('game-container')!.appendChild(minimapContainer);
     
     // Store for resize handling
     this.minimapWidth = minimapWidth;
@@ -170,16 +184,16 @@ export default class GameScene extends Phaser.Scene {
     container.appendChild(this.zoomDisplay);
     
     // Add to game container
-    document.getElementById('game-container').appendChild(container);
+    document.getElementById('game-container')!.appendChild(container);
   }
 
   setupZoomKeys() {
     // Q to zoom out, E to zoom in
-    this.input.keyboard.on('keydown-Q', () => this.zoomOut());
-    this.input.keyboard.on('keydown-E', () => this.zoomIn());
+    this.input.keyboard!.on('keydown-Q', () => this.zoomOut());
+    this.input.keyboard!.on('keydown-E', () => this.zoomIn());
     
     // Mouse wheel zoom
-    this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
+    this.input.on('wheel', (_pointer: Phaser.Input.Pointer, _gameObjects: any, _deltaX: number, deltaY: number) => {
       if (deltaY > 0) {
         this.zoomOut();
       } else if (deltaY < 0) {
@@ -206,7 +220,7 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  createTileMap(width, height) {
+  createTileMap(width: number, height: number) {
     const tileSize = 32;
     const cols = Math.ceil(width / tileSize);
     const rows = Math.ceil(height / tileSize);
@@ -243,7 +257,7 @@ export default class GameScene extends Phaser.Scene {
     this.createPaths(groundLayer, tileSize, width, height);
   }
 
-  createPaths(graphics, tileSize, width, height) {
+  createPaths(graphics: Phaser.GameObjects.Graphics, tileSize: number, width: number, height: number) {
     // Main horizontal path - soft lavender/white for Cloud Town
     const pathY = Math.floor(height / 2 / tileSize) * tileSize;
     for (let x = 0; x < width; x += tileSize) {
@@ -278,7 +292,7 @@ export default class GameScene extends Phaser.Scene {
     const pathWidth = 96; // 3 tiles wide
     
     // Helper to check if position is on a path
-    const isOnPath = (x, y) => {
+    const isOnPath = (x: number, y: number) => {
       const onHorizontalPath = Math.abs(y - pathY) < pathWidth;
       const onVerticalPath = Math.abs(x - pathX) < pathWidth;
       return onHorizontalPath || onVerticalPath;

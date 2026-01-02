@@ -123,7 +123,7 @@ export default class BootScene extends Phaser.Scene {
     
     progressContainer.appendChild(progressBg);
     progressContainer.appendChild(percentText);
-    document.getElementById('game-container').appendChild(progressContainer);
+    document.getElementById('game-container')!.appendChild(progressContainer);
     
     // Loading tips
     const tips = [
@@ -193,7 +193,7 @@ export default class BootScene extends Phaser.Scene {
     this.createPlaceholderAssets();
   }
   
-  createFloatingClouds(width, height) {
+  createFloatingClouds(width: number, height: number) {
     // Create cloud texture
     const cloudGraphics = this.add.graphics();
     cloudGraphics.fillStyle(0xffffff, 0.6);
@@ -236,11 +236,11 @@ export default class BootScene extends Phaser.Scene {
 
   createPlaceholderAssets() {
     // Create tileset texture
-    const tileSize = 32;
+    // const tileSize = 32;
     const tilesetCanvas = document.createElement('canvas');
     tilesetCanvas.width = 128;
     tilesetCanvas.height = 128;
-    const ctx = tilesetCanvas.getContext('2d');
+    const ctx = tilesetCanvas.getContext('2d')!;
     
     // Grass tile (0,0)
     ctx.fillStyle = '#c9c484';
@@ -275,7 +275,7 @@ export default class BootScene extends Phaser.Scene {
     const playerCanvas = document.createElement('canvas');
     playerCanvas.width = 128;
     playerCanvas.height = 128;
-    const pctx = playerCanvas.getContext('2d');
+    const pctx = playerCanvas.getContext('2d')!;
     
     // Draw 4 directions x 4 frames = 16 frames (32x32 each)
     // Cloud person - fluffy white character with blue accents
@@ -354,12 +354,12 @@ export default class BootScene extends Phaser.Scene {
     }
     
     // Add as spritesheet with frame dimensions
-    this.textures.addSpriteSheet('player', playerCanvas, { frameWidth: 32, frameHeight: 32 });
+    this.textures.addSpriteSheet('player', playerCanvas as any, { frameWidth: 32, frameHeight: 32 });
     // Create tree sprite - Cherry blossom style for Cloud Town
     const treeCanvas = document.createElement('canvas');
     treeCanvas.width = 64;
     treeCanvas.height = 80;
-    const tctx = treeCanvas.getContext('2d');
+    const tctx = treeCanvas.getContext('2d')!;
     
     // Shadow
     tctx.fillStyle = 'rgba(0,0,0,0.15)';
@@ -412,7 +412,7 @@ export default class BootScene extends Phaser.Scene {
     const buildingCanvas = document.createElement('canvas');
     buildingCanvas.width = 128;
     buildingCanvas.height = 128;
-    const bctx = buildingCanvas.getContext('2d');
+    const bctx = buildingCanvas.getContext('2d')!;
     
     // Roof
     bctx.fillStyle = '#cd5c5c';
@@ -458,7 +458,7 @@ export default class BootScene extends Phaser.Scene {
     const benchCanvas = document.createElement('canvas');
     benchCanvas.width = 48;
     benchCanvas.height = 32;
-    const benchCtx = benchCanvas.getContext('2d');
+    const benchCtx = benchCanvas.getContext('2d')!;
     
     // Seat
     benchCtx.fillStyle = '#8b4513';
@@ -480,7 +480,7 @@ export default class BootScene extends Phaser.Scene {
     const bushCanvas = document.createElement('canvas');
     bushCanvas.width = 32;
     bushCanvas.height = 32;
-    const bushCtx = bushCanvas.getContext('2d');
+    const bushCtx = bushCanvas.getContext('2d')!;
     
     bushCtx.fillStyle = '#228b22';
     bushCtx.beginPath();
@@ -502,7 +502,7 @@ export default class BootScene extends Phaser.Scene {
     const flowerCanvas = document.createElement('canvas');
     flowerCanvas.width = 16;
     flowerCanvas.height = 16;
-    const fctx = flowerCanvas.getContext('2d');
+    const fctx = flowerCanvas.getContext('2d')!;
     
     // Stem
     fctx.fillStyle = '#228b22';

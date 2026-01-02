@@ -5,13 +5,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "type-check": "tsc"
   },
   "dependencies": {
     "gsap": "^3.14.2",
     "phaser": "^3.80.1"
   },
   "devDependencies": {
+    "typescript": "^5.9.3",
     "vite": "^5.4.0"
   }
 }
