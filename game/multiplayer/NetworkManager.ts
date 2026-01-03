@@ -3,7 +3,7 @@ import type { PlayerData, MultiplayerMessage } from './types';
 
 type MessageHandler = (message: MultiplayerMessage) => void;
 
-const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.BACKEND_SOCKET_URL || 'http://localhost:5000';
+const SOCKET_SERVER_URL = process.env.BACKEND_SOCKET_URL || 'http://localhost:5000';
 
 interface ProfileData {
   username: string;

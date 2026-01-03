@@ -6,7 +6,7 @@ interface HomeClientProps {
   onSignIn: () => Promise<void>;
 }
 
-const SOCKET_SERVER_URL = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.BACKEND_SOCKET_URL || 'http://localhost:5000';
+const SOCKET_SERVER_URL = process.env.BACKEND_SOCKET_URL || 'http://localhost:5000';
 
 export default function HomeClient({ onSignIn }: HomeClientProps) {
   const [playerCount, setPlayerCount] = useState<number | null>(null);
