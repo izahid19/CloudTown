@@ -33,6 +33,7 @@ if (process.env.NODE_ENV === 'production') {
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers,
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   session: {
     strategy: 'jwt',
   },
@@ -44,12 +45,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
     session({ session, token }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
+      if (session.user && (token.sub || token.id)) {
+        session.user.id = (token.sub || token.id) as string;
       }
       return session;
     },
   },
+  debug: process.env.NODE_ENV === 'development', // Enable debug logs in development
   pages: {
     signIn: '/',
   },
