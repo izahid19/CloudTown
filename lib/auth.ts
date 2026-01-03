@@ -22,6 +22,14 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
   );
 }
 
+// Debug log to confirm secret is present in production (safely)
+if (process.env.NODE_ENV === 'production') {
+  console.log('NextAuth: Running in production mode');
+  console.log('NextAuth: AUTH_SECRET is', process.env.AUTH_SECRET ? 'present' : 'MISSING');
+  console.log('NextAuth: NEXTAUTH_SECRET is', process.env.NEXTAUTH_SECRET ? 'present' : 'MISSING');
+  console.log('NextAuth: Providers configured:', providers.map(p => (p as any).id || (p as any).name).join(', '));
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers,
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
