@@ -48,7 +48,7 @@ export default function ProfileModal({ isOpen, onClose, profile, onSave, isEdita
               <input
                 type="text"
                 value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value.replace(/\s/g, '') })}
                 placeholder="Your display name"
               />
             </div>

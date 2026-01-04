@@ -39,7 +39,7 @@ export default function GameClient({
 
   // User's own profile
   const [myProfile, setMyProfile] = useState<ProfileData>({
-    username: userName,
+    username: userName.replace(/\s/g, ''),
     about: '',
     linkedin: '',
     twitter: '',

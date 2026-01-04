@@ -329,7 +329,7 @@ export default function LoginClient({ onDiscordSignIn }: LoginClientProps) {
                   type="text"
                   placeholder="Username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => setUsername(e.target.value.replace(/\s/g, ''))}
                   required
                   disabled={loading}
                 />
