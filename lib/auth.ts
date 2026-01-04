@@ -40,14 +40,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account && profile) {
-        // Use providerAccountId for stable user identification
-        token.id = account.providerAccountId || (profile as any).sub || (profile as any).id;
+        // IMPORTANT: Override token.sub with stable Discord/Google ID
+        // NextAuth auto-generates token.sub as UUID if not set explicitly
+        const stableId = account.providerAccountId || (profile as any).id;
+        token.sub = stableId;
+        token.id = stableId;
       }
       return token;
     },
     session({ session, token }) {
-      if (session.user && (token.sub || token.id)) {
-        session.user.id = (token.sub || token.id) as string;
+      if (session.user) {
+        // Use the stable ID we set (token.id or token.sub are now the same)
+        session.user.id = (token.id || token.sub) as string;
       }
       return session;
     },
