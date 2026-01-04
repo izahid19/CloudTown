@@ -26,7 +26,7 @@ export default class Player {
     this.sprite.setOffset(6, 20);
     
     // Movement speed
-    this.speed = 150;
+    this.speed = 100;
     
     // Create animations
     this.createAnimations();

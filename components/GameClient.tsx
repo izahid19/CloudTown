@@ -34,6 +34,7 @@ export default function GameClient({
   const [viewingProfile, setViewingProfile] = useState<ProfileData | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const phaserGameRef = useRef<Phaser.Game | null>(null);
 
   // User's own profile
@@ -212,10 +213,17 @@ export default function GameClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, userId]);
 
-  // Toggle Phaser input when profile modal is open OR signout modal is open
+  // Toggle Phaser input AND joystick when profile modal is open OR signout modal is open
   useEffect(() => {
+    // Toggle Phaser Keyboard
     if (phaserGameRef.current && phaserGameRef.current.input && phaserGameRef.current.input.keyboard) {
       phaserGameRef.current.input.keyboard.enabled = !isProfileOpen && !isSignOutModalOpen;
+    }
+
+    // Toggle Virtual Joystick Visibility
+    const joystick = document.getElementById('virtual-joystick');
+    if (joystick) {
+      joystick.style.display = (isProfileOpen || isSignOutModalOpen) ? 'none' : 'block';
     }
   }, [isProfileOpen, isSignOutModalOpen]);
 
@@ -230,23 +238,52 @@ export default function GameClient({
       {/* UI Elements - Only shown when game IS NOT loading */}
       {!isLoading && (
         <>
-          {/* Sign Out Button */}
-          <button className="signout-btn" onClick={handleSignOut}>
-            Sign Out
-          </button>
+          {/* Desktop Controls */}
+          <div className="desktop-controls">
+            <button className="signout-btn" onClick={handleSignOut}>
+              Sign Out
+            </button>
 
-          {/* Player count badge */}
+            <button className="profile-btn" onClick={openMyProfile}>
+              <span className="profile-btn-avatar">{myProfile.username.charAt(0).toUpperCase()}</span>
+              <span className="profile-btn-text">Profile</span>
+            </button>
+          </div>
+
+          {/* Mobile Controls */}
+          <div className="mobile-controls">
+            <button className="hamburger-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <div className={`hamburger-icon ${isMenuOpen ? 'open' : ''}`}>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </button>
+
+            {isMenuOpen && (
+              <div className="mobile-menu-dropdown">
+                <div className="mobile-user-info">
+                  <div className="mobile-avatar">{myProfile.username.charAt(0).toUpperCase()}</div>
+                  <span className="mobile-username">{myProfile.username}</span>
+                </div>
+                <div className="mobile-menu-items">
+                  <button onClick={() => { setIsMenuOpen(false); openMyProfile(); }}>
+                    👤 Profile
+                  </button>
+                  <button onClick={() => { setIsMenuOpen(false); handleSignOut(); }} className="mobile-signout">
+                    🚪 Sign Out
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Player count badge (Visible on both) */}
           {playersOnline > 1 && (
             <div className="players-online">
               🟢 {playersOnline} online
             </div>
           )}
-
-          {/* Profile button */}
-          <button className="profile-btn" onClick={openMyProfile}>
-            <span className="profile-btn-avatar">{myProfile.username.charAt(0).toUpperCase()}</span>
-            <span className="profile-btn-text">Profile</span>
-          </button>
 
           {/* Profile Modal */}
           {viewingProfile && (
@@ -407,13 +444,160 @@ export default function GameClient({
           background: #cbd5e0;
         }
 
+        .mobile-controls {
+          display: none;
+        }
+
+        .desktop-controls {
+          display: block;
+        }
+
         @media (max-width: 768px) {
-          .profile-btn {
-            left: 100px;
-            padding: 6px 12px;
-          }
-          .profile-btn-text {
+          .desktop-controls {
             display: none;
+          }
+          
+          .mobile-controls {
+            display: block;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 2000;
+          }
+
+          .hamburger-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #5a5a3a;
+            border-radius: 8px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+          }
+
+          .hamburger-icon {
+            width: 24px;
+            height: 18px;
+            position: relative;
+            transform: rotate(0deg);
+            transition: .5s ease-in-out;
+          }
+
+          .hamburger-icon span {
+            display: block;
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            background: #5a5a3a;
+            border-radius: 2px;
+            opacity: 1;
+            left: 0;
+            transform: rotate(0deg);
+            transition: .25s ease-in-out;
+          }
+
+          .hamburger-icon span:nth-child(1) { top: 0px; }
+          .hamburger-icon span:nth-child(2) { top: 8px; }
+          .hamburger-icon span:nth-child(3) { top: 16px; }
+
+          .hamburger-icon.open span:nth-child(1) {
+            top: 8px;
+            transform: rotate(135deg);
+          }
+
+          .hamburger-icon.open span:nth-child(2) {
+            opacity: 0;
+            left: -60px;
+          }
+
+          .hamburger-icon.open span:nth-child(3) {
+            top: 8px;
+            transform: rotate(-135deg);
+          }
+
+          .mobile-menu-dropdown {
+            position: absolute;
+            top: 55px;
+            left: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            width: 220px;
+            overflow: hidden;
+            animation: slideDown 0.2s ease-out;
+          }
+
+          @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+
+          .mobile-user-info {
+            padding: 16px;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+
+          .mobile-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+          }
+
+          .mobile-username {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .mobile-menu-items {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+
+          .mobile-menu-items button {
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 12px;
+            border-radius: 8px;
+            color: #4a5568;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+
+          .mobile-menu-items button:hover {
+            background: #edf2f7;
+          }
+
+          .mobile-menu-items button.mobile-signout {
+            color: #e53e3e;
+          }
+          
+          .mobile-menu-items button.mobile-signout:hover {
+            background: #fff5f5;
           }
         }
       `}</style>

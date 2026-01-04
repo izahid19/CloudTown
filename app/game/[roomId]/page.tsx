@@ -1,4 +1,4 @@
-import { auth, signOut } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import GameClient from '@/components/GameClient';
 
@@ -10,7 +10,8 @@ export default async function GamePage({ params }: GamePageProps) {
   const session = await auth();
   const { roomId } = await params;
 
-  // Redirect to login if not authenticated
+  // Since we unified auth providers (Discord & Email) via NextAuth,
+  // we just need to check for a valid session here.
   if (!session?.user) {
     redirect('/');
   }
@@ -23,8 +24,6 @@ export default async function GamePage({ params }: GamePageProps) {
         userName={session.user.name || 'Anonymous'}
         userImage={session.user.image || undefined}
       />
-      
-
     </div>
   );
 }

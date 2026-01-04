@@ -28,8 +28,8 @@ export default class GameScene extends Phaser.Scene {
     this.worldWidth = 1600;
     this.worldHeight = 1200;
     this.currentZoom = 2.5; // Default 250%
-    this.minZoom = 1.0;
-    this.maxZoom = 3.0;
+    this.minZoom = 1.5; // Changed from 1.0 to 1.5 as requested
+    this.maxZoom = 4.0; // Allowed slightly closer zoom
   }
 
   create() {
@@ -251,17 +251,22 @@ export default class GameScene extends Phaser.Scene {
     const gameContainer = document.getElementById('game-container');
     if (!gameContainer) return;
 
+    // Calculate position below minimap
+    const topPos = (this.minimapHeight || 135) + (this.minimapPadding || 16) + 16;
+    const rightPos = this.minimapPadding || 16;
+    
     const container = document.createElement('div');
     container.id = 'zoom-controls';
     container.style.cssText = `
       position: absolute;
-      top: 60px;
-      left: 16px;
+      top: ${topPos}px;
+      right: ${rightPos}px;
       display: flex;
       flex-direction: column;
       gap: 8px;
       z-index: 1000;
       font-family: Arial, sans-serif;
+      align-items: center;
     `;
     
     // Zoom in button

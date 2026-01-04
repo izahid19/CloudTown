@@ -22,7 +22,22 @@ export default function LoadingScreen() {
   }, []);
 
   return (
-    <div className="loading-screen">
+    <div 
+      className="loading-screen"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: '#87CEEB',
+        zIndex: 9999,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden'
+      }}
+    >
       <div className="clouds-bg">
         {/* Floating clouds generated via CSS - carefully positioned to loop nicely */}
         <div className="cloud" style={{ top: '15%', animationDuration: '25s', animationDelay: '-5s' }} />
@@ -32,68 +47,76 @@ export default function LoadingScreen() {
         <div className="cloud" style={{ top: '10%', animationDuration: '40s', animationDelay: '-35s', transform: 'scale(0.6)' }} />
       </div>
 
-      <div className="content">
-        <h1 className="title">☁️ Cloud Town ☁️</h1>
+      <div 
+        className="content"
+        style={{
+          zIndex: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <h1 
+          className="title"
+          style={{
+            fontFamily: 'Arial, sans-serif',
+            fontSize: '48px',
+            color: 'white',
+            textShadow: '3px 3px 0px #2c5aa0',
+            marginBottom: '40px',
+            fontWeight: 'bold',
+            // Simple animation fallback if needed, but keyframes still need style tag
+          }}
+        >
+          ☁️ Cloud Town ☁️
+        </h1>
         
-        <div className="progress-container">
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${progress}%` }} />
+        <div 
+          className="progress-container"
+          style={{
+            width: '300px',
+            textAlign: 'center',
+          }}
+        >
+          <div 
+            className="progress-bar"
+            style={{
+              width: '100%',
+              height: '30px',
+              background: 'rgba(255, 255, 255, 0.9)',
+              border: '3px solid #2c5aa0',
+              borderRadius: '20px',
+              overflow: 'hidden',
+              marginBottom: '10px',
+            }}
+          >
+            <div 
+              className="progress-fill" 
+              style={{ 
+                width: `${progress}%`,
+                height: '100%',
+                background: 'linear-gradient(to right, #5cb8e8, #2c5aa0)',
+                borderRadius: '17px',
+                transition: 'width 0.2s ease-out',
+              }} 
+            />
           </div>
-          <div className="progress-text">{progress}%</div>
+          <div 
+            className="progress-text"
+            style={{
+              color: '#2c5aa0',
+              fontWeight: 'bold',
+              fontSize: '18px',
+            }}
+          >
+            {progress}%
+          </div>
         </div>
       </div>
 
       <style jsx>{`
-        .loading-screen {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          background-color: #87CEEB;
-          z-index: 9999;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          overflow: hidden;
-        }
-
         .title {
-          font-family: Arial, sans-serif;
-          font-size: 48px;
-          color: white;
-          text-shadow: 3px 3px 0px #2c5aa0;
-          margin-bottom: 40px;
-          font-weight: bold;
           animation: pulse 2s infinite ease-in-out;
-        }
-
-        .progress-container {
-          width: 300px;
-          text-align: center;
-        }
-
-        .progress-bar {
-          width: 100%;
-          height: 30px;
-          background: rgba(255, 255, 255, 0.9);
-          border: 3px solid #2c5aa0;
-          border-radius: 20px;
-          overflow: hidden;
-          margin-bottom: 10px;
-        }
-
-        .progress-fill {
-          height: 100%;
-          background: linear-gradient(to right, #5cb8e8, #2c5aa0);
-          border-radius: 17px;
-          transition: width 0.2s ease-out;
-        }
-
-        .progress-text {
-          color: #2c5aa0;
-          font-weight: bold;
-          font-size: 18px;
         }
 
         .cloud {
@@ -125,13 +148,6 @@ export default function LoadingScreen() {
         @keyframes pulse {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.05); }
-        }
-        
-        .content {
-          z-index: 10;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
         }
       `}</style>
     </div>

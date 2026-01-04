@@ -1,4 +1,4 @@
-import { auth, signIn } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import HomeClient from '@/components/HomeClient';
 
@@ -10,13 +10,6 @@ export default async function HomePage() {
     redirect('/game/cloudtown');
   }
 
-  // Show login page for unauthenticated users
-  return (
-    <HomeClient 
-      onSignIn={async () => {
-        'use server';
-        await signIn('discord');
-      }}
-    />
-  );
+  // Show home page for unauthenticated users
+  return <HomeClient />;
 }
