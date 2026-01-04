@@ -40,7 +40,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account && profile) {
-        token.id = (profile as any).sub || (profile as any).id;
+        // Use providerAccountId for stable user identification
+        token.id = account.providerAccountId || (profile as any).sub || (profile as any).id;
       }
       return token;
     },
